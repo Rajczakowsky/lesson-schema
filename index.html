@@ -1,0 +1,42 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <script type="text/javascript" src="jquery-1.11.1.js"></script>
+        <script type="text/javascript" src="/xonomy/xonomy.js"></script>
+        <link type="text/css" rel="stylesheet" href="/xonomy/xonomy.css"/>
+        <script type="text/javascript" src="lodash.js"></script>
+        <script type="text/javascript" src="base.js"></script>
+        <script type="text/javascript" src="lessonExplorerSchema.js"></script>
+        <script type="text/javascript">
+            function start() {
+            var xml="<lessonStage></lessonStage>";
+            var editor=document.getElementById("editor");
+            Xonomy.render(xml, editor, docSpec);
+            }
+        </script>
+    </head>
+    <body onload="start()">
+        <h1>Hey Mariusz!</h1>
+        <div id="editor"></div>
+    </body>
+</html>
+
+<!-- <!DOCTYPE HTML>
+<html>
+    <head>
+    <script type="text/javascript" src="jquery-1.11.1.js"></script>
+    <script type="text/javascript" src="/xonomy/xonomy.js"></script>
+    <link type="text/css" rel="stylesheet" href="/xonomy/xonomy.css"/>
+    <script type="text/javascript">
+    function start() {
+    var xml="<list><item label='one'/><item label='two'/></list>";
+    var editor=document.getElementById("editor");
+    Xonomy.render(xml, editor, docSpec);
+    }
+    </script>
+    </head>
+    <body onload="start()">
+    <div id="editor"></div>
+    </body>
+</html> -->
