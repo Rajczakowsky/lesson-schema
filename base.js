@@ -43,14 +43,15 @@ function addMenuElement(element, hideElementIfOne) {
     }
 }
 
-function addOneLinerStringElement(element) {
+function addStringElement(element, canDropTo, oneliner) {
     return {
         menu: [
             deleteElement(element)
         ],
         hasText: true,
-        oneliner: true,
+        oneliner: oneliner || false,
         asker: Xonomy.askString,
+        canDropTo: canDropTo || []
     }
 }
 
