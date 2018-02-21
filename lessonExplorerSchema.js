@@ -1,51 +1,4 @@
 
-var sectionElements = [
-    '<asset/>',
-    '<text/>',
-    '<list/>',
-    '<paragraph/>',
-    '<differentiation/>',
-    '<table/>',
-    '<question/>',
-    '<answer/>',
-    '<well/>',
-    '<note/>',
-    '<glossary/>'
-];
-
-var listItemElements = [
-    '<text/>',
-    '<asset/>',
-    '<question/>',
-    '<answer/>',
-    '<paragraph/>',
-    '<list/>',
-];
-
-var differentiationElements = [
-    '<paragraph/>',
-    '<text/>',
-    '<asset/>',
-    '<list/>'
-];
-
-var generalContentElements= [
-    '<text/>',
-    '<list/>',
-    '<asset/>',
-    '<paragraph/>',
-    '<question/>',
-    '<answer/>'
-];
-
-var glossaryElements = [
-    '<glossaryWord/>',
-    '<glossaryDefinition/>',
-    '<glossaryExample/>',
-    '<glossaryQuestion/>',
-    '<glossaryRelatedWords/>'
-];
-
 var differentiationTypes = [
     'English Learners',
     'Standard English Learners',
@@ -54,15 +7,38 @@ var differentiationTypes = [
     'Cultural Connection'
 ];
 
+var defaultParagraphElement = addMenuElement('paragraph');
+var defaultTextElement = addMenuElement('text');
+var defaultAssetElement = addMenuElement('asset', null, null, null, 'contentID="" type="" teacherOnly="false"');
+var defaultListElement = addMenuElement('list', null, null, null, 'type="bullet points"');
+var defaultAnswerElement = addMenuElement('answer');
+var defaultQuestionElement = addMenuElement('question');
+var defaultDifferentiationElement = addMenuElement('differentiation', null, null, null, 'type=""');
+var defaultTableElement = addMenuElement('table', null, null, null, 'highlight="no highlight"');
 
 var lessonStageSchema = {
     'lessonStage': {
         menu: [
-            addMenuElement('<section/>')
+            addMenuElement('section', null, null, null, 'heading="" type="default"'),
         ]
     },
     'section': {
-        menu: addMenuItems(['heading', 'type'], sectionElements, '<section/>'),
+        menu: [
+            addMenuAttribute('heading'),
+            addMenuAttribute('type', 'default'),
+            defaultAssetElement,
+            defaultAnswerElement,
+            defaultDifferentiationElement,
+            defaultListElement,
+            defaultParagraphElement,
+            defaultQuestionElement,
+            defaultTableElement,
+            defaultTextElement,
+            addMenuElement('glossary'),
+            addMenuElement('note'),
+            addMenuElement('well', null, null, null, 'type=""'),
+            deleteElement('section')
+        ],
         attributes: {
             'heading': {
                 asker: Xonomy.askString,
@@ -72,20 +48,19 @@ var lessonStageSchema = {
             },
             'type': {
                 asker: Xonomy.askPicklist,
-                askerParameter: ['objectives'],
-                menu: [
-                    deleteAttribute('type')
-                ]
+                askerParameter: ['default', 'objectives']
             }
         },
         canDropTo: ['lessonStage']
     },
-    'answer': addStringElement('<answer/>', ['section', 'listItem']),
+    'answer': addStringElement('answer', ['section', 'listItem']),
     'asset': {
-        menu: _.flattenDeep([
+        menu: [
+            addMenuAttribute('contentID'),
+            addMenuAttribute('type'),
             addMenuAttribute('teacherOnly', 'false'),
-            addMenuItems(['contentID', 'type'], null, '<asset/>'),
-        ]),
+            deleteElement('asset')
+        ],
         hasText: true,
         oneliner: true,
         asker: Xonomy.askString,
@@ -106,19 +81,29 @@ var lessonStageSchema = {
             'teacherOnly': {
                 asker: Xonomy.askPicklist,
                 askerParameter: ['false', 'true'],
-                validate: function(jsAttribute){
-                    isRequired(jsAttribute)
-                }
             }
         },
         canDropTo: ['section', 'listItem', 'differentiation', 'paragraph'],
     },
     'cell': {
-        menu: addMenuItems(null, ['<text/>', '<list/>', '<asset/>', '<paragraph/>'], '<cell/>'),
+        menu: [
+            defaultParagraphElement,
+            defaultTextElement,
+            defaultAssetElement,
+            defaultListElement,
+            deleteElement('cell')
+        ],
         canDropTo: ['row'],
     },
     'differentiation': {
-        menu: addMenuItems(['type'], differentiationElements, '<differentiation/>'),
+        menu: [
+            addMenuAttribute('type'),
+            defaultParagraphElement,
+            defaultTextElement,
+            defaultAssetElement,
+            defaultListElement,
+            deleteElement('differentiation')
+        ],
         attributes: {
             'type': {
                 asker: Xonomy.askPicklist,
@@ -131,16 +116,61 @@ var lessonStageSchema = {
         canDropTo: ['section']
     },
     'glossary': {
-         menu: addMenuItems( null, glossaryElements, '<glossary/>', true ),
+         menu: [
+            addMenuElement(
+                'glossaryWord',
+                null,
+                null,
+                function(jsElement) {
+                    return jsElement.hasChildElement('glossaryWord');
+                }
+            ),
+            addMenuElement(
+                'glossaryDefinition',
+                null,
+                null,
+                function(jsElement) {
+                    return jsElement.hasChildElement('glossaryDefinition');
+                }
+            ),
+            addMenuElement(
+                'glossaryExample',
+                null,
+                null,
+                function(jsElement) {
+                    return jsElement.hasChildElement('glossaryExample');
+                }
+            ),
+            addMenuElement(
+                'glossaryQuestion',
+                null,
+                null,
+                function(jsElement) {
+                    return jsElement.hasChildElement('glossaryQuestion');
+                }
+            ),
+            addMenuElement(
+                'glossaryRelatedWords',
+                null,
+                null,
+                function(jsElement) {
+                    return jsElement.hasChildElement('glossaryRelatedWords');
+                }
+            )
+        ],
          canDropTo: ['section']
     },
-    'glossaryWord': addStringElement('<glossaryWord/>', null, true),
-    'glossaryDefinition': addStringElement('<glossaryDefinition/>', null, true),
-    'glossaryExample': addStringElement('<glossaryExample/>', null, true),
-    'glossaryQuestion': addStringElement('<glossaryQuestion/>', null, true),
-    'glossaryRelatedWords': addStringElement('<glossaryRelatedWords/>', null, true),
+    'glossaryWord': addStringElement('glossaryWord', null, true),
+    'glossaryDefinition': addStringElement('glossaryDefinition', null, true),
+    'glossaryExample': addStringElement('glossaryExample', null, true),
+    'glossaryQuestion': addStringElement('glossaryQuestion', null, true),
+    'glossaryRelatedWords': addStringElement('glossaryRelatedWords', null, true),
     'list': {
-        menu: addMenuItems(['type'], ['<listItem/>'], '<list/>', false),
+        menu: [
+            addMenuAttribute('type'),
+            addMenuElement('listItem'),
+            deleteElement('list')
+        ],
         attributes: {
             'type': {
                 asker: Xonomy.askPicklist,
@@ -153,49 +183,78 @@ var lessonStageSchema = {
         canDropTo: ['section'],
     },
     'listItem': {
-        menu: addMenuItems(null, listItemElements, '<listItem/>'),
+        menu: [
+            defaultParagraphElement,
+            defaultTextElement,
+            defaultAssetElement,
+            defaultListElement,
+            defaultAnswerElement,
+            defaultQuestionElement,
+            deleteElement('listItem')
+        ],
         canDropTo: ['list'],
     },
     'note': {
-        menu : addMenuItems(null, generalContentElements, '<note/>'),
+        menu: [
+            defaultParagraphElement,
+            defaultTextElement,
+            defaultAssetElement,
+            defaultListElement,
+            defaultQuestionElement,
+            defaultAnswerElement,
+            deleteElement('note')
+        ],
         canDropTo: ['section']
     },
-    'objectives': {
-        menu: addMenuItems(null, generalContentElements, '<objectives/>'),
-        canDropTo: ['lessonStage'],
-    },
     'paragraph': {
-        menu: addMenuItems(null, ['<text/>', '<asset/>'], '<paragraph/>'),
+        menu: [
+            defaultTextElement,
+            defaultAssetElement,
+            deleteElement('paragraph')
+        ],
         canDropTo: ['section', 'listItem', 'differentiation'],
     },
-    'question': addStringElement('<question/>', ['section', 'listItem']),
+    'question': addStringElement('question', ['section', 'listItem']),
     'row': {
-        menu: addMenuItems(null, ['<cell/>'], '<row/>'),
+        menu: [
+            addMenuElement('cell'),
+            deleteElement('row')
+        ],
         canDropTo: ['table'],
     },
     'table': {
-        menu: addMenuItems(['highlight'], ['<row/>'], '<table/>'),
+        menu: [
+            addMenuAttribute('highlight'),
+            addMenuElement('row'),
+            deleteElement('table')
+        ],
         canDropTo: ['section'],
         attributes: {
             'highlight': {
                 asker: Xonomy.askPicklist,
-                askerParameter: [ 'no highlight', 'top row', 'left column', 'top row and left column'],
-                validate: function(jsAttribute){
-                    isRequired(jsAttribute)
-                },
+                askerParameter: [ 'no highlight', 'top row', 'left column', 'top row and left column']
             },
         },
     },
     'text': {
         menu: [
-            deleteElement('<text/>')
+            deleteElement('text')
         ],
         hasText: true,
         asker: Xonomy.askLongString,
         canDropTo: ['section', 'listItem', 'asset', 'differentiation', 'paragraph'],
     },
     'well': {
-        menu : addMenuItems([ 'type'], generalContentElements, '<well/>'),
+        menu : [
+            addMenuAttribute('highlight'),
+            defaultParagraphElement,
+            defaultTextElement,
+            defaultAssetElement,
+            defaultListElement,
+            defaultQuestionElement,
+            defaultAnswerElement,
+            deleteElement('well')
+        ],
         attributes: {
             'type': {
                 asker: Xonomy.askPicklist,

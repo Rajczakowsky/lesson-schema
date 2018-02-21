@@ -1,48 +1,3 @@
-function addMenuItems(attributes, elements, currentElement, hideElementIfOne) {
-    var menuItems = [];
-
-    if (attributes !== null) {
-        attributes.forEach( function (attribute){
-            menuItems.push(
-                addMenuAttribute(attribute)
-            )
-        });
-    }
-
-    if (elements !== null) {
-        elements.forEach( function (element){
-            menuItems.push(
-                addMenuElement(element, currentElement, hideElementIfOne),
-            )
-        });
-    }
-
-    if (currentElement !== null) {
-        menuItems.push(
-            deleteElement(currentElement)
-        );
-    }
-
-    return menuItems;
-}
-
-function addMenuElement(element, hideElementIfOne) {
-    var elementText = (element.replace(/[^a-zA-Z ]/g, ''));
-
-    return {
-        caption: 'Add '+ element,
-        action: Xonomy.newElementChild,
-        actionParameter: element,
-        hideIf: function(jsElement) {
-            if (hideElementIfOne) {
-                return jsElement.hasChildElement(elementText);
-            } else {
-                return false;
-            }
-        }
-    }
-}
-
 function addStringElement(element, canDropTo, oneliner) {
     return {
         menu: [
@@ -62,18 +17,22 @@ function deleteElement(elementName) {
     }
 }
 
-function addMenuAttribute(attributeName, defaultValue) {
-    return {
+function addMenuAttribute(attributeName, defaultValue, hideFunction) {
+    var menuAttribute = {
         caption: 'Add @' + attributeName,
         action: Xonomy.newAttribute,
         actionParameter: {
             name: attributeName,
             value: defaultValue || '',
-        },
-        hideIf: function(jsElement){
-            return jsElement.hasAttribute(attributeName);
         }
     }
+
+    menuAttribute.hideIf = hideFunction ? hideFunction : 
+        function (jsElement) {
+            return jsElement.hasAttribute(attributeName)
+        };
+
+    return menuAttribute;
 }
 
 function deleteAttribute(attributeName) {
@@ -103,3 +62,89 @@ function isCorrectAssetID(jsAttribute) {
 }
 
 
+function include_add_section_option(type, text, hideFunction) {
+    var action = "<section type=\"" + type + "\">";
+    if (text) {
+        action += text;
+    }
+    action += "</section>";
+    var menu_item = {
+        caption: "Add \"" + type + "\" type <section/>",
+        action: Xonomy.newElementChild,
+        actionParameter: action
+    };
+    if (hideFunction) {
+        menu_item.hideIf = hideFunction;
+    }
+
+    return menu_item;
+}
+
+function buildElementCaptionText(element, display_name) {
+    var elementName;
+    var hasDisplayName = ( display_name !== undefined && display_name !== null );
+
+    if (hasDisplayName) {
+        elementName = display_name;
+    } else {
+        elementName = '<' + element + '/>';
+    }
+
+    var first_char = hasDisplayName ? elementName[0] : elementName[1];
+
+    var elementMenuCaption = "Add ";
+
+    if (['a', 'e', 'i', 'o', 'u'].indexOf(first_char.toLowerCase()) !== -1) {
+        elementMenuCaption += "an ";
+    } else {
+        elementMenuCaption += "a ";
+    }
+
+    elementMenuCaption += elementName;
+
+    return elementMenuCaption;
+
+}
+
+function buildElementWithAttributes(element, text, attributes) {
+
+    var action = attributes ? '<' + element + ' ' + attributes +'/>' : '<' + element +'/>'
+
+    return action;
+}
+
+function include_add_delete_options(element, display_name, attributes) {
+    var action = build_action_parameter(element, null, attributes);
+    var element_name = build_element_name(element, display_name);
+
+    return [
+        {
+            caption: "Add a new " + element_name + " before this.",
+            action: Xonomy.newElementBefore,
+            actionParameter: action
+        }, {
+            caption: "Add a new " + element_name + " after this.",
+            action: Xonomy.newElementAfter,
+            actionParameter: action
+        }, {
+            caption: "Delete this " + element_name,
+            action: Xonomy.deleteElement
+        }];
+}
+
+function addMenuElement(element, text, display_name, hideFunction, attributes) {
+
+    var menuElement = {
+        caption: buildElementCaptionText(element, display_name),
+        action: Xonomy.newElementChild,
+        actionParameter: buildElementWithAttributes(element, text, attributes)
+    };
+
+    if (hideFunction) {
+        menuElement.hideIf = hideFunction;
+    }
+    if (attributes) {
+        menuElement.attributes = attributes;
+    }
+    return menuElement;
+}

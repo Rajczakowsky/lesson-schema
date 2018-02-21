@@ -10,15 +10,24 @@
         <script type="text/javascript" src="lessonExplorerSchema.js"></script>
         <script type="text/javascript">
             function start() {
-            var xml="<lessonStage></lessonStage>";
-            var editor=document.getElementById("editor");
-            Xonomy.render(xml, editor, docSpec);
+                var xml="<lessonStage></lessonStage>";
+                var editor=document.getElementById("editor");
+                Xonomy.render(xml, editor, docSpec);
+                // console.log( Xonomy.warnings );
+            }
+            function submit() {
+                console.log( Xonomy.warnings );
+                if ( Xonomy.warnings.length > 0) {
+                    alert('Missing required attributes found!')
+                }
+                var xml=Xonomy.harvest(); //"<list><item label='one'/><item label='two'/></list>"
             }
         </script>
     </head>
     <body onload="start()">
-        <h1>Hey Mariusz!</h1>
+        <h1>Lesson editor</h1>
         <div id="editor"></div>
+        <button onclick="submit()">Submit!</button>
     </body>
 </html>
 
