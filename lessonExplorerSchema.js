@@ -18,12 +18,14 @@ var listItemElements = [
     '<asset/>',
     '<question/>',
     '<answer/>',
-    '<paragraph/>'
+    '<paragraph/>',
+    '<list/>',
 ];
 
 var differentiationElements = [
     '<paragraph/>',
     '<text/>',
+    '<asset/>',
     '<list/>'
 ];
 
@@ -155,7 +157,7 @@ var lessonStageSchema = {
         canDropTo: ['list'],
     },
     'note': {
-        menu : addMenuItems(null, listItemElements, '<note/>'),
+        menu : addMenuItems(null, generalContentElements, '<note/>'),
         canDropTo: ['section']
     },
     'objectives': {
